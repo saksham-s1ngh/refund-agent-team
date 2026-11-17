@@ -35,4 +35,21 @@ if __name__ == "__main__":
 
     result, create = run(BAD, None)
     assert isinstance(result, ValueError) and create.call_count == 2
+
+    MALFORMED = '{"specialists": ["billing"], "reason": "Card charged twice."'
+    OVERCONFIDENT = '{"specialists": ["billing"], "reason": "Card charged twice.", "confidence": 1.5}'
+    for name, raw in [("malformed", MALFORMED), ("confidence 1.5", OVERCONFIDENT)]:
+        try:
+            router.RoutingDecision.model_validate_json(raw)
+            raise AssertionError(f"{name} should not validate")
+        except router.ValidationError as e:
+            print(f"== {name}: Pydantic error\n{e}\n")
+
+        result, create = run(raw, GOOD)
+        assert result.confidence == 0.9 and create.call_count == 2
+        print(f"== {name}, then valid reply: route_claim retried once and returned {result.model_dump_json()}\n")
+
+        result, create = run(raw, raw)
+        assert isinstance(result, ValueError) and create.call_count == 2
+        print(f"== {name} twice: route_claim raised ValueError after 2 calls:\n{str(result).splitlines()[0]}\n")
     print("ok")
