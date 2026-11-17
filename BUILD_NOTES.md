@@ -47,7 +47,36 @@ shipping: missing, late, damaged or partial deliveries.
 stock: out-of-stock or unavailable items.
 Pick every specialist the claim needs.
 The reason must cite concrete facts from the claim text.
+Reply with one JSON object containing specialists, reason and confidence, keep reason under 40 words, and stop right after the closing brace.
 ```
+
+The last sentence was added after CLM-0002 failed twice on `particle-ai/particle-1:free`: both replies left out `confidence`, never closed the object after a long `reason`, and filled the 500-token cap with blank lines. Naming every field, capping `reason`, and saying where to stop make a complete reply more likely, but the provider still doesn't enforce the schema, so validation and the single retry stay the real guard.
+
+Rerun of CLM-0002 with the new sentence (one run, first attempt, finish reason `stop`):
+
+```json
+{
+  "specialists": ["billing"],
+  "reason": "Customer reports two charges for the same knife set and available balance dropped twice, needing one charge returned; this is a double-charge/payment amount issue.",
+  "confidence": 0.99
+}
+```
+
+Matches `label_specialists` (`billing`), with no extra or missing specialists.
+
+### Does a shorter reason still tie each specialist to a fact?
+
+Partly. Rerun of CLM-0001 with the 40-word cap (one run, first attempt):
+
+```json
+{
+  "specialists": ["billing", "shipping", "stock"],
+  "reason": "Card charged twice for whole order, only stroller box arrived, car seat missing, and seller page says car seat out of stock.",
+  "confidence": 0.99
+}
+```
+
+The reason dropped from 59 to 22 words and still has one fact for each specialist (double charge, missing car seat, out of stock). But the earlier long reason named the link outright ("so billing is needed for the duplicate charge"); the short one only lists the facts, so a reader has to infer which fact backs which specialist. Nothing in the prompt or schema requires the pairing yet.
 
 The user message is the claim text only. The reply is constrained with `response_format` set to `json_schema` with `strict: true` using `RoutingDecision`'s schema, plus `provider.require_parameters: true` and `max_tokens=500`.
 

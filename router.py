@@ -11,7 +11,9 @@ SYSTEM_PROMPT = (
     "shipping: missing, late, damaged or partial deliveries. "
     "stock: out-of-stock or unavailable items. "
     "Pick every specialist the claim needs. "
-    "The reason must cite concrete facts from the claim text."
+    "The reason must cite concrete facts from the claim text. "
+    "Reply with one JSON object containing specialists, reason and confidence, "
+    "keep reason under 40 words, and stop right after the closing brace."
 )
 
 
