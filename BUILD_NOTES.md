@@ -32,7 +32,12 @@ Holds up fully, and also addresses other issues (car seat out of stock).
 
 ## Screenshot
 
-OpenRouter activity for the `claims-router` key: the earlier Ling 3.2 Flash runs that hit the output cap, then the Particle-1 run that validated.
+OpenRouter logs for the `claims-router` key, oldest at the bottom:
+
+- **08:24–08:29 PM, Ling 3.2 Flash (Ant Digital):** CLM-0001 runs. Two used about 3,000 output tokens before `max_tokens` existed, then two stopped at the 500-token cap.
+- **08:31 PM, Particle-1:** CLM-0001 validated (187 tokens).
+- **08:49 PM, Particle-1, two rows at 500 tokens:** CLM-0002 failed twice before the prompt change.
+- **09:03 PM and 09:11 PM, Particle-1 (128 and 108 tokens):** CLM-0002 and CLM-0001 validated on the first try after the prompt change.
 
 ![OpenRouter activity](activity.png)
 
